@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.llm.base import LLMError, LLMProvider
 from app.services import settings_store
 
-PROVIDERS = ("anthropic", "openai", "ollama")
+PROVIDERS = ("anthropic", "openai", "ollama", "openrouter")
 
 
 def build_provider(db: Session) -> LLMProvider:
@@ -27,6 +27,15 @@ def build_provider(db: Session) -> LLMProvider:
             api_key=settings_store.api_key(db, name),
             model=model,
             base_url=settings_store.openai_base_url(db),
+        )
+
+    if name == "openrouter":
+        from app.llm.openrouter_provider import OpenRouterProvider
+
+        return OpenRouterProvider(
+            api_key=settings_store.api_key(db, name),
+            model=model,
+            base_url=settings_store.openrouter_base_url(db),
         )
 
     if name == "ollama":
